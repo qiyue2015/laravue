@@ -28,7 +28,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog :visible.sync="dialogVisible" :title="'Edit Permissions - ' + currentRole.name">
+    <el-dialog :visible.sync="dialogVisible" :title="'Edit permissions for role - ' + currentRole.name">
       <div class="form-container" v-loading="dialogLoading">
         <div class="permissions-container">
           <div class="block">
