@@ -9,6 +9,7 @@
 /public/images/*.gif
 /public/fonts/
 /public/stats.html
+/public/mix-manifest.json
 /storage/*.key
 /vendor
 /public/*.js
@@ -22,3 +23,4 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 .DS_Store
+yarn.lock
