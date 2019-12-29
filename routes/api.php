@@ -139,4 +139,19 @@ Route::group(['middleware' => 'api'], function () {
         return response()->json(new JsonResponse(['pvData' => $data]));
     });
 
+    Route::get('/categories', function () {
+        $data = \App\Models\Category::all();
+        return response()->json(new JsonResponse($data));
+    });
+
+    Route::get('/categories/{id}', function (Request $request) {
+        $data = \App\Models\Category::find($request->id);
+        return response()->json(new JsonResponse($data));
+    });
+
+    Route::get('/search', function (Request $request) {
+        $data = \App\Models\Category::where('title', '=', $request->keyword)->first();
+        return response()->json(new JsonResponse($data));
+    });
+
 });
