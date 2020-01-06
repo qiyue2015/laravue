@@ -12,7 +12,7 @@ Vue.use(Router);
 /* Layout */
 import Layout from '@/layout';
 
-import categorieRoutes from './modules/categories';
+// import categorieRoutes from './modules/categories';
 import bookRoutes from './modules/books';
 
 /* Router for modules */
@@ -125,7 +125,7 @@ export const constantRoutes = [
 ];
 
 export const asyncRoutes = [
-  categorieRoutes,
+  // categorieRoutes,
   bookRoutes,
   // permissionRoutes,
   // componentRoutes,
