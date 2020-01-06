@@ -91,6 +91,19 @@ return [
             'prefix_indexes' => true,
         ],
 
+        'mongodb' => array(         //MongoDB
+            'driver'   => 'mongodb',
+            'host'     => 'localhost',  //数据库服务器的ip
+            'port'     => 27017,            //数据库服务器上mongodb服务对应的端口
+            'database' => 'admin',  //数据库名称
+            'username' => '',
+            'password' => '',
+//            'options' => array(
+//                'database' => 'admin' // 要使用的数据库
+//            )
+
+        ),
+
     ],
 
     /*
