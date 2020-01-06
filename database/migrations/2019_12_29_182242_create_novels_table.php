@@ -21,8 +21,8 @@ class CreateNovelsTable extends Migration
             $table->char('author', 30)->nullable()->default('')->comment('作者');
             $table->text('content')->nullable()->comment('说明');
             $table->string('tag', 100)->nullable()->default('')->comment('标签');
-            $table->tinyInteger('serialize')->default(0)->comment('连载');
-            $table->smallInteger('chapter_count')->after('serialize')->default(0);
+            $table->tinyInteger('serialize')->nullable()->default(0)->comment('连载');
+            $table->smallInteger('chapter_count')->after('serialize')->nullable()->default(0);
             $table->integer('favorites')->unsigned()->default(0)->comment('收藏');
             $table->integer('total_score')->unsigned()->default(0)->comment('总得分');
             $table->integer('voter_count')->unsigned()->default(0)->comment('评分人数');
