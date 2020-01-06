@@ -51,6 +51,8 @@ class xiaoshuo extends Command
                 foreach ($data as $row) {
                     $novel_id = $row->id;
 
+                    echo $novel_id . "\t";
+
                     if (empty($row['title'])) {
                         continue;
                     }
@@ -73,7 +75,6 @@ class xiaoshuo extends Command
 
                     $chapter = serialize(json_encode($list, JSON_UNESCAPED_UNICODE));
                     Novel::where('id', $novel_id)->update(['chapters' => $chapter, 'display' => 1]);
-                    echo $novel_id . "\t";
 
 //                    // 所有分卷
 //                    $volume_list = DB::table('chapters_0')
