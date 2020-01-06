@@ -46,13 +46,15 @@ class xiaoshuo extends Command
         $x = 1;
         while ($x <= 506) {
             echo PHP_EOL . $x . ' >>>' . PHP_EOL;
-            $data = Novel::where('display', 0)->limit(1000)->get(['id', 'title', 'source_id'])->toArray();
-            if (is_array($data)) {
+            $data = Novel::where('display', 0)->limit(1000)->get(['id', 'title', 'source_id']);
+            if (!empty($data)) {
                 foreach ($data as $row) {
-                    echo PHP_EOL . $row['id'];
+                    $novel_id = $row->id;
+
                     if (empty($row['title'])) {
                         continue;
                     }
+
                     // 获取章节
                     $url = 'http://iosapp.jiaston.com/book/' . $row['source_id'] . '/';
                     $html = file_get_contents($url);
@@ -62,67 +64,72 @@ class xiaoshuo extends Command
                     if (empty($ret_arr)) {
                         continue;
                     }
+
                     // 章节例表
                     $list = $ret_arr['data']['list'];
                     if (empty($list)) {
                         continue;
                     }
 
-                    // 所有分卷
-                    $volume_list = DB::table('chapters_0')
-                        ->select('id', 'chapter_name')
-                        ->where('novel_id', '=', $row['id'])
-                        ->get();
+                    $chapter = serialize(json_encode($list, JSON_UNESCAPED_UNICODE));
+                    Novel::where('id', $novel_id)->update(['chapters' => $chapter, 'display' => 1]);
+                    echo $novel_id . "\t";
 
-                    foreach ($list as $value) {
-                        $volume_id = 0;
-                        $volume_name = trim($value['name']);
-                        $data = [
-                            'novel_id' => $row['id'],
-                            'volume_id' => 0,
-                            'chapter_name' => '',
-                            'chapter_type' => 0,
-                            'chapter_order' => 0,
-                            'source_chapter_id' => 0,
-                            'display' => 1,
-                            'has_content' => 0,
-                            'created_at' => time(),
-                            'updated_at' => time()
-                        ];
-
-                        if (!empty($volume_list)) {
-                            foreach ($volume_list as $valume) {
-                                if ($valume->chapter_name == $volume_name) {
-                                    $volume_id = $valume->id;
-                                    break;
-                                }
-                            }
-                        }
-                        if (empty($volume_id)) {
-                            $volume = $data;
-                            $volume['chapter_type'] = 1;
-                            $volume['chapter_name'] = $value['name'];
-                            $volume['has_content'] = 0;
-                            $volume_id = DB::table('chapters_0')->insertGetId($volume);
-                        }
-
-                        $add = [];
-                        foreach ($value['list'] as $item) {
-                            $data['volume_id'] = $volume_id;
-                            $data['chapter_name'] = trim($item['name']);
-                            $data['has_content'] = intval($item['hasContent']);
-                            $add[] = $data;
-                            echo '.';
-                        }
-                        DB::table('chapters_0')->insert($add);
-                        unset($add);
-                    }
-
-                    $count = DB::table('chapters_0')
-                        ->where(['novel_id' => $row['id'], 'chapter_order' => 0])
-                        ->count();
-                    Novel::where('id', $row['id'])
-                        ->update(['chapter_count' => $count, 'display' => 1]);
+//                    // 所有分卷
+//                    $volume_list = DB::table('chapters_0')
+//                        ->select('id', 'chapter_name')
+//                        ->where('novel_id', '=', $row['id'])
+//                        ->get();
+//
+//                    foreach ($list as $value) {
+//                        $volume_id = 0;
+//                        $volume_name = trim($value['name']);
+//                        $data = [
+//                            'novel_id' => $row['id'],
+//                            'volume_id' => 0,
+//                            'chapter_name' => '',
+//                            'chapter_type' => 0,
+//                            'chapter_order' => 0,
+//                            'source_chapter_id' => 0,
+//                            'display' => 1,
+//                            'has_content' => 0,
+//                            'created_at' => time(),
+//                            'updated_at' => time()
+//                        ];
+//
+//                        if (!empty($volume_list)) {
+//                            foreach ($volume_list as $valume) {
+//                                if ($valume->chapter_name == $volume_name) {
+//                                    $volume_id = $valume->id;
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                        if (empty($volume_id)) {
+//                            $volume = $data;
+//                            $volume['chapter_type'] = 1;
+//                            $volume['chapter_name'] = $value['name'];
+//                            $volume['has_content'] = 0;
+//                            $volume_id = DB::table('chapters_0')->insertGetId($volume);
+//                        }
+//
+//                        $add = [];
+//                        foreach ($value['list'] as $item) {
+//                            $data['volume_id'] = $volume_id;
+//                            $data['chapter_name'] = trim($item['name']);
+//                            $data['has_content'] = intval($item['hasContent']);
+//                            $add[] = $data;
+//                            echo '.';
+//                        }
+//                        DB::table('chapters_0')->insert($add);
+//                        unset($add);
+//                    }
+//
+//                    $count = DB::table('chapters_0')
+//                        ->where(['novel_id' => $row['id'], 'chapter_order' => 0])
+//                        ->count();
+//                    Novel::where('id', $row['id'])
+//                        ->update(['chapter_count' => $count, 'display' => 1]);
                 }
             } else {
                 echo PHP_EOL . '-------------------- empty ' . $x . '-------------------- ' . PHP_EOL;
