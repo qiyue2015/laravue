@@ -9,7 +9,6 @@
 /public/images/*.gif
 /public/fonts/
 /public/stats.html
-/public/mix-manifest.json
 /storage/*.key
 /vendor
 /public/*.js
