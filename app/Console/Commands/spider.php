@@ -53,7 +53,7 @@ class spider extends Command
             echo "\n\r------------------- Start {$x} > {$last_id} ------------------- \n\r";
             // 每次取 1000
             $data = Novel::where('display', 0)->where('id', '>', $last_id)->orderBy('id', 'asc')->limit(1000)->get(['id', 'title', 'source_id']);
-            if (empty($data)) {
+            if (count($data) == 0) {
                 exit('结束了');
             }
             // URL例表
@@ -128,7 +128,16 @@ class spider extends Command
                                 $add[] = $data;
                                 echo '.';
                             }
-                            Chapter::insert($add);
+                            $chunk_limit = count($add);
+                            if ($chunk_limit > 1000) {
+                                // 分组执行
+                                $chunk_result = array_chunk($add, 1000, true);
+                                foreach ($chunk_result as $row) {
+                                    Chapter::insert($add);
+                                }
+                            } else {
+                                Chapter::insert($add);
+                            }
                         }
                         $count = Chapter::where(['novel_id' => $novel_id, 'chapter_order' => 0])->count();
                         Novel::where('id', $novel_id)->update(['chapter_count' => $count, 'display' => 1]);
