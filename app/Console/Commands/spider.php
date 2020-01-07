@@ -52,7 +52,7 @@ class spider extends Command
         while ($x <= 1) {
             echo "\n\r------------------- Start {$x} > {$last_id} ------------------- \n\r";
             // 每次取 1000
-            $data = Novel::where('display', 1)->where('id', '>', $last_id)->orderBy('id', 'asc')->limit(1000)->get(['id', 'title', 'source_id']);
+            $data = Novel::where('display', 0)->where('id', '>', $last_id)->orderBy('id', 'asc')->limit(1000)->get(['id', 'title', 'source_id']);
             if (empty($data)) {
                 exit('结束了');
             }
@@ -73,7 +73,7 @@ class spider extends Command
             // 开始采集
             $ql->curlMulti($urls)->success(function (QueryList $ql, CurlMulti $curl, $r) {
 
-//                echo "Current url:{$r['info']['url']} \r\n";
+                //echo "Current url:{$r['info']['url']} \r\n";
 
                 $html = $ql->getHtml();
                 $ret_json = trim($html, "\xEF\xBB\xBF"); // 去掉BOM头信息
@@ -130,9 +130,8 @@ class spider extends Command
                             }
                             Chapter::insert($add);
                         }
-                        // 入库
-                        $chapter = serialize(json_encode($list, JSON_UNESCAPED_UNICODE));
-                        Novel::where('id', $novel_id)->update(['chapters' => $chapter, 'display' => 1]);
+                        $count = Chapter::where(['novel_id' => $novel_id, 'chapter_order' => 0])->count();
+                        Novel::where('id', $novel_id)->update(['chapter_count' => $count, 'display' => 1]);
                     }
                     echo PHP_EOL;
                 }
