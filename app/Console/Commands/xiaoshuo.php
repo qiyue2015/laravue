@@ -9,6 +9,8 @@ use App\Models\Novel;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use QL\QueryList;
+
 
 class xiaoshuo extends Command
 {
@@ -43,6 +45,13 @@ class xiaoshuo extends Command
      */
     public function handle()
     {
+
+        //采集某页面所有的图片
+        $data = QueryList::get('http://iosapp.jiaston.com/book/1/')->find('img')->attrs('src');
+        //打印结果
+        print_r($data->all());
+
+        exit();
         $x = 1;
         while ($x <= 506) {
             echo PHP_EOL . $x . ' >>>' . PHP_EOL;
