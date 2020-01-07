@@ -68,11 +68,19 @@ class xiaoshuo extends Command
             if (!empty($ret_arr)) {
                 $novel_id = $ret_arr['data']['id'];
                 $novel_name = $ret_arr['data']['name'];
+                echo $novel_name . "({$novel_id})\t";
                 $list = $ret_arr['data']['list'];
                 if (!empty($list)) {
+                    foreach ($list as $value) {
+                        foreach ($value['list'] as $item) {
+                            echo ".";
+                        }
+                    }
+
                     $chapter = serialize(json_encode($list, JSON_UNESCAPED_UNICODE));
-                    Novel::where('id', $novel_id)->update(['chapters' => $chapter, 'display' => 1]);
+//                    Novel::where('id', $novel_id)->update(['chapters' => $chapter, 'display' => 1]);
                 }
+                echo PHP_EOL;
             }
             // 释放资源
             $ql->destruct();
