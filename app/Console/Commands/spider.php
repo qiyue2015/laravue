@@ -48,7 +48,7 @@ class spider extends Command
         $ql->use(CurlMulti::class, 'curlMulti');
 
         $x = 1;
-        $last_id = 0;
+        $last_id = 760;
         while ($x <= 1) {
             echo "\n\r------------------- Start {$x} > {$last_id} ------------------- \n\r";
             // 每次取 1000
@@ -91,6 +91,7 @@ class spider extends Command
                     $chapters_array = $ret_arr['data']['list'];
                     if (!empty($chapters_array)) {
                         foreach ($chapters_array as $list) {
+
                             $data = [
                                 'novel_id' => $novel_id,
                                 'volume_id' => 0,
@@ -131,17 +132,19 @@ class spider extends Command
                             $chunk_limit = count($add);
                             if ($chunk_limit > 1000) {
                                 // 分组执行
-                                $chunk_result = array_chunk($add, 1000, true);
+                                $chunk_result = array_chunk($add, 1000);
                                 foreach ($chunk_result as $row) {
-                                    Chapter::insert($add);
+                                    Chapter::insert($row);
                                 }
                             } else {
                                 Chapter::insert($add);
                             }
+                            unset($add);
                         }
-                        $count = Chapter::where(['novel_id' => $novel_id, 'chapter_order' => 0])->count();
-                        Novel::where('id', $novel_id)->update(['chapter_count' => $count, 'display' => 1]);
                     }
+
+                    $count = Chapter::where(['novel_id' => $novel_id, 'chapter_order' => 0])->count();
+                    Novel::where('id', $novel_id)->update(['chapter_count' => $count, 'display' => 1]);
                     echo PHP_EOL;
                 }
 
