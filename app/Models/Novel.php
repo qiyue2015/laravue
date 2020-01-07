@@ -11,7 +11,7 @@ class Novel extends Model
     ];
 
     protected $hidden = [
-        'chapters', 'created_at', 'updated_at',
+        'created_at', 'updated_at',
     ];
 
     public function setSerializeAttribute($value)

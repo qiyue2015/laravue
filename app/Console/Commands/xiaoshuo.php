@@ -49,7 +49,7 @@ class xiaoshuo extends Command
     {
 
         $x = 1;
-        $last_id = 453136;
+        $last_id = 40;
         while ($x <= 1) {
             echo "\n\r------------------- Start {$x} > {$last_id} ------------------- \n\r";
             $data = Novel::where('display', 1)->where('id', '>', $last_id)->orderBy('id', 'asc')->limit(200)->get(['id', 'title', 'chapters', 'source_id']);
@@ -67,27 +67,32 @@ class xiaoshuo extends Command
                     //     continue;
                     // }
 
-                    try {
-                        $chapters = unserialize($row['chapters']);
-                        $ret_json = trim($chapters, "\xEF\xBB\xBF"); // 去掉BOM头信息
-                        $ret_json = preg_replace('/,\s*([\]}])/m', '$1', $ret_json); // 修正不规则json
-                        $chapters_array = json_decode($ret_json, true);
-                        if (array_key_exists('status', $chapters_array)) {
-                            $chapters_array = $chapters_array['data']['list'];
-                        }
-                        // 统计
-                        $chapters_count = 0;
-                        foreach ($chapters_array as $list) {
-                            $chapters_count = $chapters_count + count($list['list']);
-                        }
-
-                        // 统计章节
-                        Novel::where('id', $novel_id)->update(['chapter_count' => $chapters_count, 'display' => 1]);
-
-                    } catch (\Exception $e) {
+//                    try {
+//                        $chapters = unserialize($row['chapters']);
+//                        $ret_json = trim($chapters, "\xEF\xBB\xBF"); // 去掉BOM头信息
+//                        $ret_json = preg_replace('/,\s*([\]}])/m', '$1', $ret_json); // 修正不规则json
+//                        $chapters_array = json_decode($ret_json, true);
+//                        if (array_key_exists('status', $chapters_array)) {
+//                            $chapters_array = $chapters_array['data']['list'];
+//                        }
+//                        // 统计
+//                        $chapters_count = 0;
+//                        foreach ($chapters_array as $list) {
+//                            $chapters_count = $chapters_count + count($list['list']);
+//                        }
+//
+//                        // 统计章节
+//                        Novel::where('id', $novel_id)->update(['chapter_count' => $chapters_count, 'display' => 1]);
+//
+//                    } catch (\Exception $e) {
+//                    }
+                    $chapters = unserialize($row['chapters']);
+                    $ret_json = trim($chapters, "\xEF\xBB\xBF"); // 去掉BOM头信息
+                    $ret_json = preg_replace('/,\s*([\]}])/m', '$1', $ret_json); // 修正不规则json
+                    $chapters_array = json_decode($ret_json, true);
+                    if (array_key_exists('status', $chapters_array)) {
+                        $chapters_array = $chapters_array['data']['list'];
                     }
-
-                    /*
                     foreach ($chapters_array as $list) {
                         $data = [
                             'novel_id' => $novel_id,
@@ -128,10 +133,6 @@ class xiaoshuo extends Command
                         }
                         Chapter::insert($add);
                     }
-                    // 统计章节
-                    $count = Chapter::where('novel_id', $novel_id)->count();
-                    Novel::where('id', $novel_id)->update(['chapter_count' => $count, 'display' => 1]);
-                    */
                 }
                 unset($data);
             } else {

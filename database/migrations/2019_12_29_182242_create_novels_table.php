@@ -32,8 +32,8 @@ class CreateNovelsTable extends Migration
             $table->integer('source_id')->default(0)->comment('源书ID');
             $table->mediumText('chapters')->nullable()->comment('章节表');
             $table->tinyInteger('display')->default(0)->comment('是否显示');
-            $table->integer('created_at');
-            $table->integer('updated_at');
+            $table->integer('created_at')->default(0);
+            $table->integer('updated_at')->default(0);
 
             $table->index('title');
             $table->index('author_id');
