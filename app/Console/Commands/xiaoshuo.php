@@ -46,7 +46,7 @@ class xiaoshuo extends Command
         $x = 1;
         while ($x <= 506) {
             echo PHP_EOL . $x . ' >>>' . PHP_EOL;
-            $data = Novel::where('display', 0)->limit(1000)->get(['id', 'title', 'source_id']);
+            $data = Novel::where('display', 0)->where('id', '>', 4470)->limit(1000)->get(['id', 'title', 'source_id']);
             if (!empty($data)) {
                 foreach ($data as $row) {
                     $novel_id = $row->id;
