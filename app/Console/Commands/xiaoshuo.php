@@ -61,11 +61,27 @@ class xiaoshuo extends Command
         // 开始采集
         $ql->curlMulti($urls)->success(function (QueryList $ql, CurlMulti $curl, $r) {
             echo "Current url:{$r['info']['url']} \r\n";
-//            $data = $ql->query()->getData();
-//            print_r($data->all());
+            $data = $ql->getHtml();
+            $ret_json = trim($data, "\xEF\xBB\xBF"); // 去掉BOM头信息
+            $ret_json = preg_replace('/,\s*([\]}])/m', '$1', $ret_json); // 修正不规则json
+            $ret_arr = json_decode($ret_json, true);
+            if (!empty($ret_arr)) {
+                $novel_id = $ret_arr['data']['id'];
+                $novel_name = $ret_arr['data']['name'];
+                $list = $ret_arr['data']['list'];
+                if (!empty($list)) {
+                    $chapter = serialize(json_encode($list, JSON_UNESCAPED_UNICODE));
+                    Novel::where('id', $novel_id)->update(['chapters' => $chapter, 'display' => 1]);
+                }
+            }
             // 释放资源
             $ql->destruct();
-        })->start();
+        })->error(function ($errorInfo, CurlMulti $curl) {
+            echo "Current url:{$errorInfo['info']['url']} \r\n";
+            print_r($errorInfo['error']);
+        })->start([
+            'cache' => ['enable' => false, 'compress' => false, 'dir' => null, 'expire' => 86400, 'verifyPost' => false]
+        ]);
 
         exit();
         $x = 1;
