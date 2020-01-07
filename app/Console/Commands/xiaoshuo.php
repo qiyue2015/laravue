@@ -52,46 +52,59 @@ class xiaoshuo extends Command
         //or Custom function name
         $ql->use(CurlMulti::class, 'curlMulti');
 
-        // 每次拉取页面
-        $urls = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $urls[] = "http://iosapp.jiaston.com/book/{$i}/";
+        $x = 1;
+        $j = 1;
+        while ($x <= 506) {
+            echo "------------------------ {$x}  {$j}-----------------------\n\r";
+            // 每次取 100
+            $data = Novel::where('display', 0)->where('id', '>', $j)->limit(100)->get(['id', 'title', 'source_id']);
+            if (!empty($data)) {
+                $urls = [];
+                foreach ($data as $row) {
+                    $urls[] = "http://iosapp.jiaston.com/book/{$row->id}/";
+                    $j = $row->id;
+                }
+                if (count($urls)) {
+                    $ql->curlMulti($urls)->success(function (QueryList $ql, CurlMulti $curl, $r) {
+                        echo "Current url:{$r['info']['url']} \r\n";
+                        $html = $ql->getHtml();
+                        $ret_json = trim($html, "\xEF\xBB\xBF"); // 去掉BOM头信息
+                        $ret_json = preg_replace('/,\s*([\]}])/m', '$1', $ret_json); // 修正不规则json
+                        $ret_arr = json_decode($ret_json, true);
+                        if (!empty($ret_arr)) {
+                            $novel_id = $ret_arr['data']['id'];
+                            $novel_name = $ret_arr['data']['name'];
+
+                            echo "{$novel_name}\n\r";
+
+                            // 章节例表
+                            $list = $ret_arr['data']['list'];
+                            if (!empty($list)) {
+                                foreach ($list as $value) {
+                                    echo ">>> " . $value['name'] . "\t";
+                                    foreach ($value['list'] as $item) {
+                                        echo '.';
+                                    }
+                                    echo PHP_EOL;
+                                }
+                                echo PHP_EOL;
+                            }
+                            $chapter = serialize(json_encode($list, JSON_UNESCAPED_UNICODE));
+                            Novel::where('id', $novel_id)->update(['chapters' => $chapter, 'display' => 1]);
+                        }
+                        // 释放资源
+                        $ql->destruct();
+                    })->start([
+                        'cache' => ['enable' => false, 'compress' => false, 'dir' => null, 'expire' => 86400, 'verifyPost' => false]
+                    ]);
+                }
+            }
+            $x++;
         }
 
-        // 开始采集
-        $ql->curlMulti($urls)->success(function (QueryList $ql, CurlMulti $curl, $r) {
-            echo "Current url:{$r['info']['url']} \r\n";
-            $data = $ql->getHtml();
-            $ret_json = trim($data, "\xEF\xBB\xBF"); // 去掉BOM头信息
-            $ret_json = preg_replace('/,\s*([\]}])/m', '$1', $ret_json); // 修正不规则json
-            $ret_arr = json_decode($ret_json, true);
-            if (!empty($ret_arr)) {
-                $novel_id = $ret_arr['data']['id'];
-                $novel_name = $ret_arr['data']['name'];
-                echo $novel_name . "({$novel_id})\t";
-                $list = $ret_arr['data']['list'];
-                if (!empty($list)) {
-                    foreach ($list as $value) {
-                        foreach ($value['list'] as $item) {
-                            echo ".";
-                        }
-                    }
-
-                    $chapter = serialize(json_encode($list, JSON_UNESCAPED_UNICODE));
-//                    Novel::where('id', $novel_id)->update(['chapters' => $chapter, 'display' => 1]);
-                }
-                echo PHP_EOL;
-            }
-            // 释放资源
-            $ql->destruct();
-        })->error(function ($errorInfo, CurlMulti $curl) {
-            echo "Current url:{$errorInfo['info']['url']} \r\n";
-            print_r($errorInfo['error']);
-        })->start([
-            'cache' => ['enable' => false, 'compress' => false, 'dir' => null, 'expire' => 86400, 'verifyPost' => false]
-        ]);
-
         exit();
+
+
         $x = 1;
         while ($x <= 506) {
             echo PHP_EOL . $x . ' >>>' . PHP_EOL;
@@ -188,6 +201,8 @@ class xiaoshuo extends Command
             echo PHP_EOL;
         }
         exit();
+
+
         $x = 1;
         while ($x <= 940) {
             echo $x . ' --------------';
