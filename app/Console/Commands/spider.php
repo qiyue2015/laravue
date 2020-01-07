@@ -48,7 +48,7 @@ class spider extends Command
         $ql->use(CurlMulti::class, 'curlMulti');
 
         $x = 1;
-        $last_id = 760;
+        $last_id = 0;
         while ($x <= 1) {
             echo "\n\r------------------- Start {$x} > {$last_id} ------------------- \n\r";
             // 每次取 1000
