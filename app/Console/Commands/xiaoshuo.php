@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use QL\QueryList;
-
+use QL\Ext\CurlMulti;
 
 class xiaoshuo extends Command
 {
@@ -46,10 +46,26 @@ class xiaoshuo extends Command
     public function handle()
     {
 
-        //采集某页面所有的图片
-        $data = QueryList::get('http://iosapp.jiaston.com/book/1/')->find('img')->attrs('src');
-        //打印结果
-        print_r($data->all());
+        // 引入多线程插件
+        $ql = QueryList::getInstance();
+        $ql->use(CurlMulti::class);
+        //or Custom function name
+        $ql->use(CurlMulti::class, 'curlMulti');
+
+        // 每次拉取页面
+        $urls = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $urls[] = "http://iosapp.jiaston.com/book/{$i}/";
+        }
+
+        // 开始采集
+        $ql->curlMulti($urls)->success(function (QueryList $ql, CurlMulti $curl, $r) {
+            echo "Current url:{$r['info']['url']} \r\n";
+//            $data = $ql->query()->getData();
+//            print_r($data->all());
+            // 释放资源
+            $ql->destruct();
+        })->start();
 
         exit();
         $x = 1;
