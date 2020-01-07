@@ -26,7 +26,7 @@ class CategoriesController extends Controller
 
     public function list(Request $request)
     {
-        $result = Novel::where('display', 1)->orderBy('updated_at', 'DESC')->paginate(12);
+        $result = Novel::orderBy('updated_at', 'DESC')->paginate(12);
         return $result;
     }
 }
