@@ -6,11 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Novel extends Model
 {
-    protected $fillable = ['title', 'source_id', 'author', 'content', 'tag', 'serialize', 'favorites', 'total_score', 'voter_count', 'score', 'site_id', 'source_id'];
+    protected $fillable = [
+        'title', 'source_id', 'author', 'content', 'tag', 'serialize', 'favorites', 'total_score', 'voter_count', 'score', 'site_id', 'source_id'
+    ];
+
+    protected $hidden = [
+        'chapters', 'created_at', 'updated_at',
+    ];
 
     public function setSerializeAttribute($value)
     {
         return $value == '连载' ? 1 : 0;
+    }
+
+    public function getSerializeAttribute($value)
+    {
+        return $value == 0 ? '连载' : '完本';
     }
 
     /**
@@ -60,5 +71,24 @@ class Novel extends Model
     {
         return 'U';
     }
+
+    /**
+     * 关联分类
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * 关联章节
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function chapters()
+    {
+        return $this->hasMany(Chapter::class);
+    }
+
 }
 

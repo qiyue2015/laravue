@@ -1,9 +1,9 @@
 import Layout from '@/layout';
 
 const tableRoutes = {
-  path: '/table',
+  path: '/articles',
   component: Layout,
-  redirect: '/table/complex-table',
+  redirect: '/articles/list',
   name: 'Complex Table',
   meta: {
     title: '书库管理',
@@ -12,8 +12,8 @@ const tableRoutes = {
   },
   children: [
     {
-      path: 'tree-table',
-      component: () => import('@/views/table/TreeTable/TreeTable'),
+      path: 'list',
+      component: () => import('@/views/articles/List'),
       name: 'TreeTableDemo',
       meta: { title: '小说例表' },
     },

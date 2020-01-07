@@ -37,11 +37,12 @@ Route::group(['middleware' => 'api'], function () {
     Route::apiResource('permissions', 'PermissionController')->middleware('permission:' . \App\Laravue\Acl::PERMISSION_PERMISSION_MANAGE);
 
     Route::get('categories', 'CategoriesController@index')->name('categories.index');
-    Route::get('categories/{id}', 'CategoriesController@show')->name('categories.show');
+    Route::get('categories/{category_id}', 'CategoriesController@list')->name('categories.list');
+    Route::get('articles', 'CategoriesController@list')->name('categories.list');
 
     Route::resource('novels', 'NovelsController')->only([
         'store', 'update'
     ]);
 
-    Route::get('search', 'CategoriesController@index')->name('categories.show');
+    Route::get('search', 'SearchsController@index')->name('searchs.index');
 });

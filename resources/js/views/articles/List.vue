@@ -7,37 +7,67 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="180px" align="center" label="Date">
-        <template slot-scope="scope">
-          <span>{{ scope.row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+      <el-table-column min-width="200px" label="Title">
+        <template slot-scope="{row}">
+          <router-link :to="'/administrator/articles/edit/'+row.id" class="link-type">
+            <span>{{ row.title }}</span>
+          </router-link>
         </template>
       </el-table-column>
 
-      <el-table-column width="120px" align="center" label="Author">
+      <!--      <el-table-column width="180px" align="center" label="Date">-->
+      <!--        <template slot-scope="scope">-->
+      <!--          <span>{{ scope.row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
+
+      <el-table-column width="120px" align="center" label="作者">
         <template slot-scope="scope">
           <span>{{ scope.row.author }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column width="100px" label="Importance">
+      <el-table-column align="center" label="章节数">
         <template slot-scope="scope">
-          <svg-icon v-for="n in +scope.row.importance" :key="n" icon-class="star" class="meta-item__icon" />
+          <span>{{ scope.row.chapter_count }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column class-name="status-col" label="Status" width="110">
+      <el-table-column align="center" label="收藏">
+        <template slot-scope="scope">
+          <span>{{ scope.row.favorites }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="总分数">
+        <template slot-scope="scope">
+          <span>{{ scope.row.total_score }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="投票人数">
+        <template slot-scope="scope">
+          <span>{{ scope.row.voter_count }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="得分">
+        <template slot-scope="scope">
+          <span>{{ scope.row.score }}</span>
+        </template>
+      </el-table-column>
+
+      <!--      <el-table-column width="100px" label="Importance">-->
+      <!--        <template slot-scope="scope">-->
+      <!--          <svg-icon v-for="n in +scope.row.importance" :key="n" icon-class="star" class="meta-item__icon" />-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
+
+      <el-table-column class-name="status-col" label="状态">
         <template slot-scope="{row}">
-          <el-tag :type="row.status | statusFilter">
-            {{ row.status }}
+          <el-tag>
+            {{ row.serialize }}
           </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column min-width="300px" label="Title">
-        <template slot-scope="{row}">
-          <router-link :to="'/administrator/articles/edit/'+row.id" class="link-type">
-            <span>{{ row.title }}</span>
-          </router-link>
         </template>
       </el-table-column>
 
@@ -91,9 +121,9 @@ export default {
   methods: {
     async getList() {
       this.listLoading = true;
-      const { data } = await articleResource.list(this.listQuery);
-      this.list = data.items;
-      this.total = data.total;
+      const result = await articleResource.list(this.listQuery);
+      this.list = result.data;
+      this.total = result.total;
       this.listLoading = false;
     },
   },

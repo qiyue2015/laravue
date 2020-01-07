@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Chapter extends Model
 {
     protected $fillable = [
-        'title', 'source_id', 'author', 'content', 'tag', 'serialize', 'favorites', 'total_score', 'voter_count', 'score', 'site_id', 'source_id', 'created_at', 'updated_at'
+        'novel_id', 'volume_id', 'chapter_name', 'chapter_type', 'chapter_order', 'source_chapter_id', 'has_content', 'display'
     ];
     /**
      * 默认使用时间戳戳功能
@@ -56,4 +56,5 @@ class Chapter extends Model
     {
         return 'U';
     }
+
 }
