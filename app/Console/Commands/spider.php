@@ -140,7 +140,7 @@ class spider extends Command
         $ql->use(CurlMulti::class, 'curlMulti');
 
         $x = 1;
-        $last_id = 0;
+        $last_id = 39;
         while ($x <= 1) {
             echo "\n\r------------------- Start {$x} > {$last_id} ------------------- \n\r";
             // 每次取 1000
@@ -149,19 +149,25 @@ class spider extends Command
                 foreach ($data as $row) {
                     $last_id = $row->id;
                     $novel_id = $row->id;
-                    if (empty($row->title) || empty($row->chapters)) {
-                        continue;
-                    }
-                    $chapters = unserialize($row->chapters);
-                    if (empty($row->chapters)) {
-                        continue;
-                    }
 
                     echo "\r\n{$novel_id} Start \r\n";
 
-                    $chapters = trim($chapters, "\xEF\xBB\xBF"); // 去掉BOM头信息
-                    $chapters = preg_replace('/,\s*([\]}])/m', '$1', $chapters); // 修正不规则json
+                    if (empty($row->title) || empty($row->chapters)) {
+                        continue;
+                    }
+
+                    try {
+                        $chapters = unserialize($row->chapters);
+                        $chapters = trim($chapters, "\xEF\xBB\xBF"); // 去掉BOM头信息
+                        $chapters = preg_replace('/,\s*([\]}])/m', '$1', $chapters); // 修正不规则json
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+
                     $chapters_array = json_decode($chapters, true);
+                    if (empty($chapters_array)) {
+                        continue;
+                    }
                     if (array_key_exists('status', $chapters_array)) {
                         $chapters_array = $chapters_array['data']['list'];
                     }
@@ -196,6 +202,7 @@ class spider extends Command
                             $volume = Chapter::create($data);
                         }
                         // 章节
+                        $add = [];
                         foreach ($list['list'] as $item) {
                             $source_chapter_key = '$source_chapter_key_' . $item['id'];
                             $source_chapter_id = (int)Cache::get($source_chapter_key);
@@ -204,12 +211,20 @@ class spider extends Command
                                 $data['chapter_name'] = trim($item['name']);
                                 $data['chapter_type'] = 0;
                                 $data['has_content'] = intval($item['hasContent']);
-                                $chapter = Chapter::create($data);
-                                if ($chapter) {
-                                    echo '.';
-                                    Cache::add($item['id'], $source_chapter_key, 7200);
-                                }
+                                $data['source_chapter_id'] = intval($item['id']);
+                                $add[] = $data;
+                                echo '.';
+//                                $chapter = Chapter::create($data);
+//                                if ($chapter) {
+//                                    echo '.';
+//                                    Cache::add($item['id'], $source_chapter_key, 7200);
+//                                }
                             }
+                        }
+                        // 分割数组
+                        $chunk_result = array_chunk($add, 2000);
+                        foreach ($chunk_result as $result) {
+                            Chapter::insert($result);
                         }
                     }
                     $count = Chapter::where('novel_id', $novel_id)->where('chapter_type', 0)->count();
