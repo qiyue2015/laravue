@@ -242,6 +242,7 @@ class spider extends Command
                 // 释放资源
                 $ql->destruct();
             })->start([
+                'maxThread' => 10,
                 'cache' => [
                     'enable' => false,
                     'compress' => false,
