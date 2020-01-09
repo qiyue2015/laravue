@@ -362,7 +362,6 @@ class xiaoshuo extends Command
             $chapters_json = preg_replace('/,\s*([\]}])/m', '$1', $chapters_json); // 修正不规则json
             $chapters_array = json_decode($chapters_json, true);
             $chapters = json_encode($chapters_array['data']['list'], JSON_UNESCAPED_UNICODE);
-
             $data = [
                 'title' => $item->title,
                 'author' => $item->author,
