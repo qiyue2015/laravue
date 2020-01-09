@@ -204,28 +204,19 @@ class spider extends Command
                         // 章节
                         $add = [];
                         foreach ($list['list'] as $item) {
-                            $source_chapter_key = '$source_chapter_key_' . $item['id'];
-                            $source_chapter_id = (int)Cache::get($source_chapter_key);
-                            if (empty($source_chapter_id)) {
-                                $data['volume_id'] = $volume->id;
-                                $data['chapter_name'] = trim($item['name']);
-                                $data['chapter_type'] = 0;
-                                $data['has_content'] = intval($item['hasContent']);
-                                $data['source_chapter_id'] = intval($item['id']);
-                                $add[] = $data;
-                                echo '.';
-//                                $chapter = Chapter::create($data);
-//                                if ($chapter) {
-//                                    echo '.';
-//                                    Cache::add($item['id'], $source_chapter_key, 7200);
-//                                }
-                            }
+                            $data['volume_id'] = $volume->id;
+                            $data['chapter_name'] = trim($item['name']);
+                            $data['chapter_type'] = 0;
+                            $data['has_content'] = intval($item['hasContent']);
+                            $data['source_chapter_id'] = intval($item['id']);
+                            $add[] = $data;
                         }
                         // 分割数组
                         $chunk_result = array_chunk($add, 2000);
                         foreach ($chunk_result as $result) {
                             Chapter::insert($result);
                         }
+                        unset($add);
                     }
                     $count = Chapter::where('novel_id', $novel_id)->where('chapter_type', 0)->count();
                     Novel::where('id', $novel_id)->update(['display' => 1, 'chapter_count' => $count]);
