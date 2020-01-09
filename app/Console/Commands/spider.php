@@ -158,6 +158,9 @@ class spider extends Command
                 if (empty($row->chapters)) {
                     continue;
                 }
+
+                echo "\r\n{$novel_id} Start \r\n";
+
                 $chapters = trim($chapters, "\xEF\xBB\xBF"); // 去掉BOM头信息
                 $chapters = preg_replace('/,\s*([\]}])/m', '$1', $chapters); // 修正不规则json
                 $chapters_array = json_decode($chapters, true);
@@ -211,6 +214,10 @@ class spider extends Command
                         }
                     }
                 }
+                $count = Chapter::where('novel_id', $novel_id)->where('chapter_type', 0)->count();
+                Novel::where('id', $novel_id)->update(['display' => 1, 'chapter_count' => $count]);
+                echo "\r\n{$novel_id} >>> End ({$count}) \r\n\r\n";
+                if ($last_id == 10) exit();
             }
         }
     }

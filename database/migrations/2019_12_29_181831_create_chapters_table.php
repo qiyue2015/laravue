@@ -15,11 +15,11 @@ class CreateChaptersTable extends Migration
     {
         Schema::create('chapters', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('novel_id')->index();
-            $table->integer('volume_id')->index()->default(0)->comment('分卷ID');
+            $table->integer('novel_id');
+            $table->integer('volume_id')->default(0)->comment('分卷ID');
             $table->string('chapter_name', 100)->default('');
             $table->tinyInteger('chapter_type')->default(0);
-            $table->smallInteger('chapter_order')->index()->default(0);
+            $table->smallInteger('chapter_order')->default(0);
             $table->integer('source_chapter_id')->default(0)->comment('源站章节ID');
             $table->tinyInteger('has_content')->default(0)->comment('是否有内容');
             $table->tinyInteger('display')->default(0)->comment('是否显示');
@@ -28,7 +28,8 @@ class CreateChaptersTable extends Migration
             // $table->timestamps();
 
             // 索引
-            # $table->index(['novel_title', 'chapter_name'], 'novel_title');
+            $table->index(['id', 'novel_id']);
+            $table->index('chapter_type');
             // 单独创建索引
             // $table->index('updated_at','updated_at');
             # $table->index('created_at');
