@@ -145,79 +145,80 @@ class spider extends Command
             echo "\n\r------------------- Start {$x} > {$last_id} ------------------- \n\r";
             // 每次取 1000
             $data = Novel::where('display', 0)->where('id', '>', $last_id)->orderBy('id', 'asc')->limit(100)->get(['id', 'title', 'source_id', 'chapters']);
-            if (count($data) == 0) {
-                exit('结束了');
-            }
-            foreach ($data as $row) {
-                $last_id = $row->id;
-                $novel_id = $row->id;
-                if (empty($row->title) || empty($row->chapters)) {
-                    continue;
-                }
-                $chapters = unserialize($row->chapters);
-                if (empty($row->chapters)) {
-                    continue;
-                }
+            if (count($data) > 0) {
+                foreach ($data as $row) {
+                    $last_id = $row->id;
+                    $novel_id = $row->id;
+                    if (empty($row->title) || empty($row->chapters)) {
+                        continue;
+                    }
+                    $chapters = unserialize($row->chapters);
+                    if (empty($row->chapters)) {
+                        continue;
+                    }
 
-                echo "\r\n{$novel_id} Start \r\n";
+                    echo "\r\n{$novel_id} Start \r\n";
 
-                $chapters = trim($chapters, "\xEF\xBB\xBF"); // 去掉BOM头信息
-                $chapters = preg_replace('/,\s*([\]}])/m', '$1', $chapters); // 修正不规则json
-                $chapters_array = json_decode($chapters, true);
-                if (array_key_exists('status', $chapters_array)) {
-                    $chapters_array = $chapters_array['data']['list'];
-                }
-                foreach ($chapters_array as $list) {
-                    $data = [
-                        'novel_id' => $novel_id,
-                        'volume_id' => 0,
-                        'chapter_name' => '',
-                        'chapter_type' => 0,
-                        'chapter_order' => 0,
-                        'source_chapter_id' => 0,
-                        'display' => 1,
-                        'has_content' => 0
-                    ];
+                    $chapters = trim($chapters, "\xEF\xBB\xBF"); // 去掉BOM头信息
+                    $chapters = preg_replace('/,\s*([\]}])/m', '$1', $chapters); // 修正不规则json
+                    $chapters_array = json_decode($chapters, true);
+                    if (array_key_exists('status', $chapters_array)) {
+                        $chapters_array = $chapters_array['data']['list'];
+                    }
+                    foreach ($chapters_array as $list) {
+                        $data = [
+                            'novel_id' => $novel_id,
+                            'volume_id' => 0,
+                            'chapter_name' => '',
+                            'chapter_type' => 0,
+                            'chapter_order' => 0,
+                            'source_chapter_id' => 0,
+                            'display' => 1,
+                            'has_content' => 0
+                        ];
 
-                    // 分卷
-                    $volume = null;
-                    $volume_name = trim($list['name']);
-                    $volumes = Chapter::where('novel_id', $novel_id)->where('chapter_type', 1)->get();
-                    if (!empty($volumes)) {
-                        foreach ($volumes as $value) {
-                            if ($value->chapter_name == $volume_name) {
-                                $volume = $value;
-                                break;
+                        // 分卷
+                        $volume = null;
+                        $volume_name = trim($list['name']);
+                        $volumes = Chapter::where('novel_id', $novel_id)->where('chapter_type', 1)->get();
+                        if (!empty($volumes)) {
+                            foreach ($volumes as $value) {
+                                if ($value->chapter_name == $volume_name) {
+                                    $volume = $value;
+                                    break;
+                                }
+                            }
+                        }
+                        if (empty($volume)) {
+                            $data['chapter_type'] = 1;
+                            $data['chapter_name'] = $volume_name;
+                            $data['has_content'] = 0;
+                            $volume = Chapter::create($data);
+                        }
+                        // 章节
+                        foreach ($list['list'] as $item) {
+                            $source_chapter_key = '$source_chapter_key_' . $item['id'];
+                            $source_chapter_id = (int)Cache::get($source_chapter_key);
+                            if (empty($source_chapter_id)) {
+                                $data['volume_id'] = $volume->id;
+                                $data['chapter_name'] = trim($item['name']);
+                                $data['chapter_type'] = 0;
+                                $data['has_content'] = intval($item['hasContent']);
+                                $chapter = Chapter::create($data);
+                                if ($chapter) {
+                                    echo '.';
+                                    Cache::add($item['id'], $source_chapter_key, 7200);
+                                }
                             }
                         }
                     }
-                    if (empty($volume)) {
-                        $data['chapter_type'] = 1;
-                        $data['chapter_name'] = $volume_name;
-                        $data['has_content'] = 0;
-                        $volume = Chapter::create($data);
-                    }
-                    // 章节
-                    foreach ($list['list'] as $item) {
-                        $source_chapter_key = '$source_chapter_key_' . $item['id'];
-                        $source_chapter_id = (int)Cache::get($source_chapter_key);
-                        if (empty($source_chapter_id)) {
-                            $data['volume_id'] = $volume->id;
-                            $data['chapter_name'] = trim($item['name']);
-                            $data['chapter_type'] = 0;
-                            $data['has_content'] = intval($item['hasContent']);
-                            $chapter = Chapter::create($data);
-                            if ($chapter) {
-                                echo '.';
-                                Cache::add($item['id'], $source_chapter_key, 7200);
-                            }
-                        }
-                    }
+                    $count = Chapter::where('novel_id', $novel_id)->where('chapter_type', 0)->count();
+                    Novel::where('id', $novel_id)->update(['display' => 1, 'chapter_count' => $count]);
+                    echo "\r\n{$novel_id} >>> End ({$count}) \r\n\r\n";
                 }
-                $count = Chapter::where('novel_id', $novel_id)->where('chapter_type', 0)->count();
-                Novel::where('id', $novel_id)->update(['display' => 1, 'chapter_count' => $count]);
-                echo "\r\n{$novel_id} >>> End ({$count}) \r\n\r\n";
-                if ($last_id == 10) exit();
+            } else {
+                $x = 2;
+                echo "\n\r\n\r\n\r------------------- ALL OK ------------------- \n\r\n\r\n\r";
             }
         }
     }
