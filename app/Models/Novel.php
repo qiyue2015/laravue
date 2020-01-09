@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Novel extends Model
 {
     protected $fillable = [
-        'title', 'source_id', 'author', 'content', 'tag', 'serialize', 'favorites', 'total_score', 'voter_count', 'score', 'site_id', 'source_id'
+        'title', 'author', 'content', 'tag', 'serialize', 'favorites', 'total_score', 'voter_count', 'score', 'site_id', 'source_id', 'updated_at'
     ];
 
     protected $hidden = [
@@ -16,7 +16,7 @@ class Novel extends Model
 
     public function setSerializeAttribute($value)
     {
-        return $value == '连载' ? 1 : 0;
+        return $value == '连载' ? 0 : 1;
     }
 
     public function getSerializeAttribute($value)
