@@ -26,13 +26,7 @@ class CreateChaptersTable extends Migration
             $table->integer('created_at')->default(0);
             $table->integer('updated_at')->default(0);
             // $table->timestamps();
-
-            // 索引
-            $table->index(['id', 'novel_id']);
-            $table->index('chapter_type');
-            // 单独创建索引
-            // $table->index('updated_at','updated_at');
-            # $table->index('created_at');
+            $table->index('chapter_type', 'chapter_type');
         });
     }
 

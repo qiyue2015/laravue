@@ -214,7 +214,7 @@ class spider extends Command
                     }
                     $count = Chapter::where('novel_id', $novel_id)->where('chapter_type', 0)->count();
                     Novel::where('id', $novel_id)->update(['display' => 1, 'chapter_count' => $count]);
-                    echo "\r\n{$novel_id} >>> End ({$count}) \r\n\r\n";
+                    echo "\r\n{$novel_id} End ({$count}) \r\n\r\n";
                 }
             } else {
                 $x = 2;
