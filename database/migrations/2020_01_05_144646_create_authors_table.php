@@ -14,7 +14,7 @@ class CreateAuthorsTable extends Migration
     public function up()
     {
         Schema::create('authors', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->increments('id');
             $table->char('name', 80)->index()->default('')->comment('作者名称');
             $table->timestamps();
         });
