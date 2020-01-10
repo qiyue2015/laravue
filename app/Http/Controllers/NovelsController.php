@@ -21,7 +21,6 @@ class NovelsController extends Controller
                     $chapters[$volume_index]['list'][] = $chapter;
                 }
             }
-            unset($novel->chapters);
         }
         $novel->chapters = $chapters;
         return new NovelResource($novel);
