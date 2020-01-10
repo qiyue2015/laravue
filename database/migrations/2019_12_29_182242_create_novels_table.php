@@ -14,6 +14,7 @@ class CreateNovelsTable extends Migration
     public function up()
     {
         Schema::create('novels', function (Blueprint $table) {
+
             $table->increments('id');
             $table->smallInteger('category_id')->default(0)->comment('所属分类');
             $table->char('title', 80)->default('')->comment('名称');
@@ -42,8 +43,8 @@ class CreateNovelsTable extends Migration
             $table->index('updated_at');
             $table->index('author');
             $table->index('serialize');
-            $table->unique(array('site_id', 'source_id'), 'novels_site_source_idx');
-            // $table->timestamps();
+            $table->unique(['site_id', 'source_id'], 'novels_site_source_idx');
+
         });
     }
 

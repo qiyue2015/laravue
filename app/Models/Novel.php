@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Novel extends Model
 {
     protected $fillable = [
-        'title', 'author', 'content', 'tag', 'serialize', 'favorites', 'total_score', 'voter_count', 'score', 'site_id', 'source_id', 'updated_at'
+        'title', 'category_id', 'author', 'content', 'tag', 'serialize', 'favorites', 'total_score', 'voter_count', 'score', 'site_id', 'source_id', 'updated_at'
     ];
 
     protected $hidden = [

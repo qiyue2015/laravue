@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Http\Request;
-
 //use \App\Laravue\Faker;
 //use \App\Laravue\JsonResponse;
 //use \App\Mongodb;
@@ -39,11 +38,8 @@ Route::group(['middleware' => 'api'], function () {
 
     Route::get('categories', 'CategoriesController@index')->name('categories.index');
     Route::get('categories/{category_id}', 'CategoriesController@list')->name('categories.list');
-
-    Route::prefix('novel')->group(function () {
-        Route::get('/info/{novel_id}', 'NovelsController@index')->name('novels.index');
-        Route::get('/index/{novel_id}', 'NovelsController@all')->name('novels.all');
-    });
+    Route::get('reload', 'CategoriesController@list')->name('categories.list');
+    Route::get('articles', 'CategoriesController@list')->name('categories.list');
 
     Route::resource('novels', 'NovelsController')->only([
         'store', 'update'
