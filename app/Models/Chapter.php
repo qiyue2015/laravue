@@ -57,4 +57,9 @@ class Chapter extends Model
         return 'U';
     }
 
+    // 关联小说表，外键是 novel_id
+    public function novel()
+    {
+        return $this->belongsTo(Novel::class);
+    }
 }
