@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Novel;
+use App\Models\Category;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,7 @@ class SeedNovelsData extends Migration
      */
     public function up()
     {
-        /*
+
         // 引入多线程插件
         $ql = QueryList::getInstance();
         $ql->use(CurlMulti::class);
@@ -40,8 +41,8 @@ class SeedNovelsData extends Migration
                 $ret_json = preg_replace('/,\s*([\]}])/m', '$1', $ret_json); // 修正不规则json
                 $response = json_decode($ret_json);
                 $response = $response->data;
-                $category = \App\Models\Category::where('caption', '=', $response->CName)->first();
-                $novel = Novel::create([
+                $category = Category::where('caption', '=', $response->CName)->first();
+                $data = [
                     'category_id' => $category->id,
                     'title' => $response->Name,
                     'img' => $response->Img,
@@ -55,8 +56,12 @@ class SeedNovelsData extends Migration
                     'site_id' => 0,
                     'source_id' => $response->Id,
                     'updated_at' => strtotime($response->LastTime)
-                ]);
+                ];
+                print_r($data);
+                $novel = Novel::create($data);
                 echo $novel->id . "\t";
+                echo strtotime($response->LastTime);
+                echo PHP_EOL;
                 // 释放资源
                 $ql->destruct();
             })
@@ -70,7 +75,6 @@ class SeedNovelsData extends Migration
                     'verifyPost' => false
                 ]
             ]);
-        */
     }
 
     /**

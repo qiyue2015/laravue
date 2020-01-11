@@ -18,8 +18,6 @@ class SeedChaptersData extends Migration
      */
     public function up()
     {
-
-        /*
         // 引入多线程插件
         $ql = QueryList::getInstance();
         $ql->use(CurlMulti::class);
@@ -106,7 +104,6 @@ class SeedChaptersData extends Migration
                     'verifyPost' => false
                 ]
             ]);
-        */
     }
 
     /**
