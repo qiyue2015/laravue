@@ -67,7 +67,10 @@ class update extends Command
                         $response = json_decode($ret_json);
                         $response = $response->data;
                         $updated_at = strtotime($response->LastTime);
-                        Novel::where('source_id', $response->Id)->update(['updated_at' => $updated_at]);
+                        Novel::where('source_id', $response->Id)->update([
+                            'img' => $response->Img,
+                            'updated_at' => $updated_at
+                        ]);
                         // 释放资源
                         $ql->destruct();
                     })
