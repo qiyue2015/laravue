@@ -41,7 +41,7 @@ class update extends Command
     public function handle()
     {
         // 清洗半年内未更新的数据
-        Novel::chunk(1000, function ($novels) {
+        Novel::where('display', 0)->chunk(1000, function ($novels) {
 
             // 引入多线程插件
             $ql = QueryList::getInstance();
@@ -69,6 +69,7 @@ class update extends Command
                         $updated_at = strtotime($response->LastTime);
                         Novel::where('source_id', $response->Id)->update([
                             'img' => $response->Img,
+                            'display' => 1,
                             'updated_at' => $updated_at
                         ]);
                         // 释放资源
