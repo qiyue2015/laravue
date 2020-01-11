@@ -41,7 +41,7 @@ class update extends Command
     public function handle()
     {
         // 清洗半年内未更新的数据
-        Novel::where('serialize', 0)->chunk(2000, function ($novels) {
+        Novel::where('serialize', 0)->chunk(100, function ($novels) {
 
             // 引入多线程插件
             $ql = QueryList::getInstance();
@@ -75,7 +75,7 @@ class update extends Command
                         $ql->destruct();
                     })
                     ->start([
-                        'maxThread' => 10,
+                        'maxThread' => 100,
                         'cache' => [
                             'enable' => false,
                             'compress' => false,
